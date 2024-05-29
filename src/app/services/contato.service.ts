@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Contato } from '../componentes/contato/contato';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 
 
@@ -8,31 +10,38 @@ import { Contato } from '../componentes/contato/contato';
 })
 export class ContatoService {
 
-  private contatos: Contato[] = [
-    {"id": 1, "nome": "Ana", "telefone": "29 278869420", "email": "jorge@joge.com"},
-    {"id": 2, "nome": "Ágata", "telefone": "38 128451235", "email": "jorge@joge.com"},
-    {"id": 3, "nome": "Bruno", "telefone": "95 695521583", "email": "jorge@joge.com"},
-    {"id": 4, "nome": "Beatriz", "telefone": "25 854986459", "email": "jorge@joge.com"},
-    {"id": 5, "nome": "Carlos", "telefone": "94 543197849", "email": "jorge@joge.com"},
-    {"id": 7, "nome": "Daniel", "telefone": "56 613692441", "email": "jorge@joge.com"},
-  ]
+  private readonly API = 'http://localhost:3000/contatos'
 
-  constructor() {
-    const contatosLocalStorageString = localStorage.getItem('contatos');
-    const contatosLocalStorage =
-      contatosLocalStorageString ? JSON.parse(contatosLocalStorageString) : null;
+  constructor(private http: HttpClient) {
 
-    this.contatos = contatosLocalStorage || null;
-
-    localStorage.setItem('contatos', JSON.stringify(this.contatos));
   }
 
-  obterContatos() {
-    return this.contatos;
+  obterContatos(): Observable<Contato[]> {
+    return this.http.get<Contato[]>(this.API);
   }
 
-  salvarContato(contato: Contato){
-    this.contatos.push(contato);
-    localStorage.setItem('contatos', JSON.stringify(this.contatos));
+  salvarContato(contato: Contato): Observable<Contato>{
+    return this.http.post<Contato>(this.API, contato)
+  }
+
+  buscarPorId(id: number): Observable<Contato>{
+    const url = `${this.API}/${id}`;
+    return this.http.get<Contato>(url);
+  }
+  excluiContato(id: number): Observable<Contato>{
+    const url = `${this.API}/${id}`;
+    return this.http.delete<Contato>(url);
+  }
+  editarContato(contato: Contato): Observable<Contato>{
+    const url = `${this.API}/${contato.id}`;
+    return this.http.put<Contato>(url, contato);
+  }
+  editarOuSalvarContato(contato: Contato){
+    if(contato.id){
+      return this.editarContato(contato)
+    }
+    else{
+      return this.salvarContato(contato)
+    }
   }
 }

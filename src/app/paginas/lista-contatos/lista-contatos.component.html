@@ -19,9 +19,12 @@
       }
       @for(contato of filtrarContatosOrdemAlfabetica(letra); track contato.id){
         <app-contato 
-          [nome]="contato.nome" 
-          [telefone]="contato.telefone">
-      </app-contato>
+          [nome]="contato.nome"
+          [telefone]="contato.telefone"
+          [id]="contato.id"
+          [avatar]="contato.avatar!"
+          >
+        </app-contato>
       }
   
     }
